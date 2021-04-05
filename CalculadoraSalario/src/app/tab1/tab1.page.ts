@@ -67,12 +67,15 @@ export class Tab1Page {
     //Pega a dedução por dependente
     if(QtdDependente){
       this.deducaoDependente = QtdDependente * 189.59;
+    }else{
+      this.deducaoDependente = 0;
     }
 
     //Pega o desconto do IRRF
+    this.descontos = 0;
     this.irrfDesconto = (this.salarioInss * (this.irrfAliquota / 100)) - this.irrfDeducao;
     if(this.irrfDesconto >= this.deducaoDependente){
-      this.irrfDesconto -= this.deducaoDependente;
+      this.descontos = this.deducaoDependente;
     }else{
       this.irrfDesconto = 0;
       this.irrfAliquota = 0;
@@ -81,7 +84,7 @@ export class Tab1Page {
     if(OutrosDes){
       outrosDescontos = parseInt(OutrosDes.toString());
     }
-    this.descontos = (this.inssDesconto + this.irrfDesconto + outrosDescontos);
+    this.descontos += (this.inssDesconto + this.irrfDesconto + outrosDescontos);
     this.salarioLiquido = (SBruto - this.descontos) + this.cota;
   }
 }
