@@ -28,51 +28,78 @@ export class Tab1Page {
   calcularSalario(SBruto: number, QtdDependente: number, OutrosDes: number){
     if(SBruto){
       //Pega a Alíquota do INSS
-      if(SBruto <= 1100){
-        this.inssAliquota = 7.5;
-      }else if(SBruto >= 1100.01 && SBruto <= 2203.48){
-        this.inssAliquota = 9;
-      }else if(SBruto >= 2203.49 && SBruto <= 3305.22){
-        this.inssAliquota = 12;
-      }else if(SBruto >= 3305.23 && SBruto <= 6433.57){
-        this.inssAliquota = 14;
-      }
+      this.aliquotaInss(SBruto)
 
       //Pega a Cota do Salário Família
-      if(SBruto <= 1503.25){
-        this.cota = 51.27;
-      }else{
-        this.cota = 0;
-      }
+      this.salarioFamilia(SBruto)
       
       this.inssDesconto = SBruto * (this.inssAliquota / 100);
       this.salarioInss = SBruto - this.inssDesconto;
       
       //Pega Alíquota do IRRF
-      if(this.salarioInss >= 1903.99 && this.salarioInss <= 2826.65){
-        this.irrfAliquota = 7.5;
-        this.irrfDeducao = 142.80;
-      }else if(this.salarioInss >= 2826.66 && this.salarioInss <= 3751.05){
-        this.irrfAliquota = 15;
-        this.irrfDeducao = 354.80;
-      }else if(this.salarioInss >= 3751.06 && this.salarioInss <= 4664.68){
-        this.irrfAliquota = 22.5;
-        this.irrfDeducao = 636.13;
-      }else if(this.salarioInss > 4664.68){
-        this.irrfAliquota = 27.5;
-        this.irrfDeducao = 869.36;
-      }
+      this.aliquotaIrrf()
+      
     }
 
     //Pega a dedução por dependente
+    this.deducaoDepen(QtdDependente)
+   
+    //Pega o desconto do IRRF
+    this.descontos = 0;
+    this.descontoIrrf()
+    
+    let outrosDescontos: number = 0;
+    if(OutrosDes){
+      outrosDescontos = parseInt(OutrosDes.toString());
+    }
+    
+    this.descontos += (this.inssDesconto + this.irrfDesconto + outrosDescontos);
+    this.salarioLiquido = (SBruto - this.descontos) + this.cota;
+  }
+
+  salarioFamilia(SBruto: number){
+    if(SBruto <= 1503.25){
+      this.cota = 51.27;
+    }else{
+      this.cota = 0;
+    }
+  }
+
+  aliquotaInss(SBruto: number){
+    if(SBruto <= 1100){
+      this.inssAliquota = 7.5;
+    }else if(SBruto >= 1100.01 && SBruto <= 2203.48){
+      this.inssAliquota = 9;
+    }else if(SBruto >= 2203.49 && SBruto <= 3305.22){
+      this.inssAliquota = 12;
+    }else if(SBruto >= 3305.23 && SBruto <= 6433.57){
+      this.inssAliquota = 14;
+    }
+  }
+  aliquotaIrrf(){
+    if(this.salarioInss >= 1903.99 && this.salarioInss <= 2826.65){
+      this.irrfAliquota = 7.5;
+      this.irrfDeducao = 142.80;
+    }else if(this.salarioInss >= 2826.66 && this.salarioInss <= 3751.05){
+      this.irrfAliquota = 15;
+      this.irrfDeducao = 354.80;
+    }else if(this.salarioInss >= 3751.06 && this.salarioInss <= 4664.68){
+      this.irrfAliquota = 22.5;
+      this.irrfDeducao = 636.13;
+    }else if(this.salarioInss > 4664.68){
+      this.irrfAliquota = 27.5;
+      this.irrfDeducao = 869.36;
+    }
+  }
+
+  deducaoDepen(QtdDependente: number){
     if(QtdDependente){
       this.deducaoDependente = QtdDependente * 189.59;
     }else{
       this.deducaoDependente = 0;
     }
-
-    //Pega o desconto do IRRF
-    this.descontos = 0;
+  }
+  descontoIrrf(){
     this.irrfDesconto = (this.salarioInss * (this.irrfAliquota / 100)) - this.irrfDeducao;
     if(this.irrfDesconto >= this.deducaoDependente){
       this.descontos = this.deducaoDependente;
@@ -80,11 +107,5 @@ export class Tab1Page {
       this.irrfDesconto = 0;
       this.irrfAliquota = 0;
     }
-    let outrosDescontos: number = 0;
-    if(OutrosDes){
-      outrosDescontos = parseInt(OutrosDes.toString());
-    }
-    this.descontos += (this.inssDesconto + this.irrfDesconto + outrosDescontos);
-    this.salarioLiquido = (SBruto - this.descontos) + this.cota;
   }
 }
